@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head><title>Watch Party</title></head>
+<body>
+<h2>Watch Party Room</h2>
+<video id="video" width="480" controls src="sample.mp4"></video>
+<br/>
+<input id="chatInput" placeholder="type message" />
+<button onclick="sendChat()">Send</button>
+<div id="chat"></div>
+
+<script>
+let ws = new WebSocket("ws://localhost:8000/ws/YOUR_ROOM_ID");
+let video = document.getElementById("video");
+
+ws.onmessage = (event) => {
+    let msg = JSON.parse(event.data);
+    if (msg.type === "play") {
+        video.currentTime = msg.time;
+        video.play();
+    } else if (msg.type === "pause") {
+        video.currentTime = msg.time;
+        video.pause();
+    } else if (msg.type === "chat") {
+        document.getElementById("chat").innerHTML += `<div>${msg.text}</div>`;
+    }
+};
+
+video.onplay = () => ws.send(JSON.stringify({type:"play", time: video.currentTime}));
+video.onpause = () => ws.send(JSON.stringify({type:"pause", time: video.currentTime}));
+
+function sendChat() {
+    let text = document.getElementById("chatInput").value;
+    ws.send(JSON.stringify({type: "chat", text: text}));
+}
+</script>
+</body>
+</html>

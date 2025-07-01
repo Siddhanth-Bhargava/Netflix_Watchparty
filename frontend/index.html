@@ -8,6 +8,8 @@
 <input id="chatInput" placeholder="type message" />
 <button onclick="sendChat()">Send</button>
 <div id="chat"></div>
+<button id="createRoomBtn">Create Room</button>
+<div id="roomId"></div>
 
 <script>
 let ws = new WebSocket("ws://localhost:8000/ws/YOUR_ROOM_ID");
@@ -33,6 +35,14 @@ function sendChat() {
     let text = document.getElementById("chatInput").value;
     ws.send(JSON.stringify({type: "chat", text: text}));
 }
+
+document.getElementById('createRoomBtn').onclick = async function() {
+  const response = await fetch('http://127.0.0.1:8000/create_room', {
+    method: 'POST'
+  });
+  const data = await response.json();
+  document.getElementById('roomId').innerText = 'Room ID: ' + data.room_id;
+};
 </script>
 </body>
 </html>
